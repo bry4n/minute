@@ -19,4 +19,11 @@ describe Minute do
     assert_equal time.month, 12
     assert_equal time.year, 2001
   end
+
+  it "parses 8:30 AM" do
+    time = Minute.parse("8:30 AM")
+    assert_equal 8, time.hour
+    assert_equal 30, time.min
+  end
+
 end

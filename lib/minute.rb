@@ -13,11 +13,13 @@ class Minute
 
   VERSION = "0.1"
 
-  MONTHS = Date::MONTHNAMES.zip(Date::ABBR_MONTHNAMES).flatten.compact.map(&:downcase).freeze
-
+  MONTHS  = Date::MONTHNAMES.zip(Date::ABBR_MONTHNAMES).flatten.compact.map(&:downcase).freeze
+  DAYS    = Date::DAYNAMES.zip(Date::ABBR_DAYNAMES).flatten.compact.map(&:downcase).freeze
+  
   DATE_WITH_ORDINAL   = /(\d{1,2})(st|nd|rd|th)?\s+(#{MONTHS.join("|")})(\s+\d{4})?/
   ENGLISH_DATE        = /(#{MONTHS.join("|")}),?\s(\d{1,2})(\s+\d{4})?/
   DATE                = /(\d{1,4})-?(\d{1,4})-?(\d{1,4})?/
+  TIME                = /(\d{1,2}:\d{1,2})(:\d{1,2})?\s+?(am|pm)/i
 
   # Public: Create a match pattern to capture date/time strings.
   #
@@ -79,6 +81,8 @@ class Minute
   match 'tomorrow',     lambda {|time| time + 1.day }
   match 'yesterday',    lambda {|time| time - 1.day }
   match 'today',        lambda {|time| time }
+  
+  match /(beginning|end)\s+of\s+(year|month|week|day)/,  lambda {|time,m| time.send(:"#{m[1]}_of_#{m[2]}") }
 
   match /(last|next|\d+)\s+(year|month|week|day|hour|minute|second)s?(\s+ago)?/ do |time, m|
     case m[1]
@@ -96,6 +100,7 @@ class Minute
   match DATE,               lambda {|time, m| Time.parse(m[1..-1].compact.join("-")) }
   match ENGLISH_DATE,       lambda {|time, m| Time.parse(m[1..-1].compact.join(" ")) }
   match DATE_WITH_ORDINAL,  lambda {|time, m| Time.parse(m[1..-1].compact.join(" ")) }
+  match TIME,               lambda {|time, m| Time.parse(m[1..-1].compact.join) }
 
   # TODO
   # this december
